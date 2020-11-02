@@ -40,3 +40,5 @@ export const initializeOrganizationResources = (
 export type OrganizationConnection = ReturnType<
   typeof initializeOrganizationResources
 >;
+
+export type MainConnection = typeof main;
