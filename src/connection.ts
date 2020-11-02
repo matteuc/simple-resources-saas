@@ -22,14 +22,20 @@ export const main = {
  * @param databaseURL URL to the organization's RTDB
  * @param storageURL URL to the organization's bucket
  */
-export const initializeOrganizationResources = (
+export const initializeOrgConnection = (
+  orgName: string,
   databaseURL: string,
   storageURL: string
 ) => {
-  const app = firebase.initializeApp({
-    databaseURL,
-    storageBucket: storageURL
-  });
+  const app =
+    firebase.apps.find((a) => a.name === orgName) ||
+    firebase.initializeApp(
+      {
+        databaseURL,
+        storageBucket: storageURL
+      },
+      orgName
+    );
 
   return {
     db: firebase.database(app),
@@ -37,8 +43,6 @@ export const initializeOrganizationResources = (
   };
 };
 
-export type OrganizationConnection = ReturnType<
-  typeof initializeOrganizationResources
->;
+export type OrganizationConnection = ReturnType<typeof initializeOrgConnection>;
 
 export type MainConnection = typeof main;
