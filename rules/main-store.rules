@@ -8,5 +8,9 @@ service cloud.firestore {
     	allow read: if true;
       allow write: if false;
   	}
+    match /organizations/{orgId} {
+    	allow read: if request.auth != null && orgId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizations;
+      allow write: if false;
+  	}
   }
 }

@@ -145,7 +145,7 @@ const AuthProvider: React.FC = ({ children }) => {
         organizations: {
           ...(organizationId
             ? {
-                [organizationId]: userId
+                [organizationId]: true
               }
             : {})
         }
