@@ -31,7 +31,9 @@ export const initializeOrgConnection = (
   orgName: string,
   databaseURL: string,
   storageURL: string
-): OrganizationConnection => {
+): OrganizationConnection & {
+  disconnect: () => void;
+} => {
   const app =
     firebase.apps.find((a) => a.name === orgName) ||
     firebase.initializeApp(
@@ -44,7 +46,8 @@ export const initializeOrgConnection = (
 
   return {
     db: firebase.database(app),
-    storage: firebase.storage(app)
+    storage: firebase.storage(app),
+    disconnect: () => app.delete()
   };
 };
 

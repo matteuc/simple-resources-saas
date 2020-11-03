@@ -24,14 +24,20 @@ const OrganizationProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (organization) {
-      setConnection(
-        initializeOrgConnection(
-          organization.name,
-          organization.databaseUrl,
-          organization.storageUrl
-        )
+      const { db, storage, disconnect } = initializeOrgConnection(
+        organization.name,
+        organization.databaseUrl,
+        organization.storageUrl
       );
+      setConnection({
+        db,
+        storage
+      });
+
+      return disconnect;
     }
+
+    return () => {};
   }, [organization]);
 
   return (
