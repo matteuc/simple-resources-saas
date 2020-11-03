@@ -19,6 +19,7 @@ export type AuthState = {
   signUp: (
     email: string,
     password: string,
+    name: string,
     orgForm?: {
       orgId: string;
       accessCode: string;
@@ -110,7 +111,12 @@ const AuthProvider: React.FC = ({ children }) => {
    * @param password
    * @param orgForm
    */
-  const signUp: AuthState['signUp'] = async (email, password, orgForm) => {
+  const signUp: AuthState['signUp'] = async (
+    email,
+    password,
+    name,
+    orgForm
+  ) => {
     let organizationId: User['currentOrganizationId'];
 
     if (orgForm) {
