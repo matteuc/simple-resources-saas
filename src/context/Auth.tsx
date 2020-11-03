@@ -8,8 +8,7 @@ import { User } from '../global/types/user';
 import Database from '../global/functions/database';
 import {
   generateOrganizationsPath,
-  generateUserPath,
-  USERS_COLLECTION
+  generateUserPath
 } from '../global/constants/database';
 
 export type AuthState = {
@@ -203,6 +202,15 @@ const AuthProvider: React.FC = ({ children }) => {
     return () => {};
   }, [user]);
 
+  useEffect(() => {
+    if (organization) {
+      return Database.watchDocument<Organization>(
+        generateOrganizationsPath(organization.id),
+        (o) => setOrganization(o)
+      );
+    }
+    return () => {};
+  }, []);
   return (
     <AuthContext.Provider
       value={{

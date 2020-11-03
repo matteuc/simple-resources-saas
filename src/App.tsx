@@ -2,6 +2,7 @@ import * as React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { AuthProvider } from './context/Auth';
+import { OrganizationProvider } from './context/Organization';
 
 const Main: React.FC = () => {
   return (
@@ -26,7 +27,9 @@ const Main: React.FC = () => {
 
 const App: React.FC = () => (
   <AuthProvider>
-    <Main />
+    <OrganizationProvider>
+      <Main />
+    </OrganizationProvider>
   </AuthProvider>
 );
 
