@@ -9,10 +9,10 @@ import { useOrganization } from './Organization';
 
 const ThemeContext = createContext(null);
 
-const theme = createMuiTheme(customTheme);
+const defaultTheme = createMuiTheme(customTheme);
 
 const ThemeProvider: React.FC = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(theme);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
 
   const { organization } = useOrganization();
 
