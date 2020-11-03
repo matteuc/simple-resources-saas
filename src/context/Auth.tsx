@@ -210,7 +210,7 @@ const AuthProvider: React.FC = ({ children }) => {
       );
     }
     return () => {};
-  }, []);
+  }, [organization]);
   return (
     <AuthContext.Provider
       value={{

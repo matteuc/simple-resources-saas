@@ -5,19 +5,21 @@ import { Organization } from '../global/types/organization';
 import { useAuth } from './Auth';
 
 export type OrganizationState = {
-  connection: Maybe<OrganizationConnection>;
+  db: Maybe<OrganizationConnection['db']>;
+  storage: Maybe<OrganizationConnection['storage']>;
   organization: Maybe<Organization>;
 };
 
 const initialState: OrganizationState = {
-  connection: null,
+  db: null,
+  storage: null,
   organization: null
 };
 
 const OrganizationContext = createContext(initialState);
 
 const OrganizationProvider: React.FC = ({ children }) => {
-  const [connection, setConnection] = useState<OrganizationState['connection']>(
+  const [connection, setConnection] = useState<Maybe<OrganizationConnection>>(
     null
   );
   const { organization } = useAuth();
@@ -41,7 +43,9 @@ const OrganizationProvider: React.FC = ({ children }) => {
   }, [organization]);
 
   return (
-    <OrganizationContext.Provider value={{ connection, organization }}>
+    <OrganizationContext.Provider
+      value={{ db: connection?.db, storage: connection?.storage, organization }}
+    >
       {children}
     </OrganizationContext.Provider>
   );
