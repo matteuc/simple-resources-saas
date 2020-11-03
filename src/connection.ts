@@ -17,6 +17,11 @@ export const main = {
   auth: firebase.auth()
 };
 
+export type OrganizationConnection = {
+  db: firebase.database.Database;
+  storage: firebase.storage.Storage;
+};
+
 /**
  * Return a connection to an organization's resources
  * @param databaseURL URL to the organization's RTDB
@@ -26,7 +31,7 @@ export const initializeOrgConnection = (
   orgName: string,
   databaseURL: string,
   storageURL: string
-) => {
+): OrganizationConnection => {
   const app =
     firebase.apps.find((a) => a.name === orgName) ||
     firebase.initializeApp(
@@ -42,7 +47,5 @@ export const initializeOrgConnection = (
     storage: firebase.storage(app)
   };
 };
-
-export type OrganizationConnection = ReturnType<typeof initializeOrgConnection>;
 
 export type MainConnection = typeof main;

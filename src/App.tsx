@@ -1,8 +1,9 @@
 import * as React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { AuthProvider } from './context/Auth';
 
-function App() {
+const Main: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
@@ -21,6 +22,12 @@ function App() {
       </header>
     </div>
   );
-}
+};
+
+const App: React.FC = () => (
+  <AuthProvider>
+    <Main />
+  </AuthProvider>
+);
 
 export default App;
