@@ -11,6 +11,7 @@ import {
   generateUserPath,
   generateOrganizationMetadataPath
 } from '../global/constants/database';
+import { loadImage } from '../global/functions/storage';
 
 export type AuthState = {
   user: Maybe<User>;
@@ -112,6 +113,7 @@ const AuthProvider: React.FC = ({ children }) => {
    * Sign up and login the user
    * @param email
    * @param password
+   * @param form
    * @param orgForm
    */
   const signUp: AuthState['signUp'] = async (
@@ -192,10 +194,10 @@ const AuthProvider: React.FC = ({ children }) => {
             Organization
           >(generateOrganizationsPath(orgId));
 
-          setOrganization(org);
+          setOrganization(org ? await loadImage(org) : null);
         }
 
-        setUser(retrievedUser);
+        setUser(retrievedUser ? await loadImage(retrievedUser) : null);
       } else {
         // Reset the stored organization (if applicable) and user profile
         _clear();
@@ -207,8 +209,11 @@ const AuthProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      return Database.watchDocument<User>(generateUserPath(user.id), (u) =>
-        setUser(u)
+      return Database.watchDocument<User>(
+        generateUserPath(user.id),
+        async (u) => {
+          setUser(u ? await loadImage(u) : null);
+        }
       );
     }
     return () => {};
@@ -218,7 +223,9 @@ const AuthProvider: React.FC = ({ children }) => {
     if (organization) {
       return Database.watchDocument<Organization>(
         generateOrganizationsPath(organization.id),
-        (o) => setOrganization(o)
+        async (o) => {
+          setUser(o ? await loadImage(o) : null);
+        }
       );
     }
     return () => {};

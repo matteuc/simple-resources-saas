@@ -35,7 +35,8 @@
     "react/prop-types": 0,
     "no-underscore-dangle": 0,
     "@typescript-eslint/no-empty-function": 0,
-    "react/jsx-props-no-spreading": 0
+    "react/jsx-props-no-spreading": 0,
+    "import/prefer-default-export": 0
   },
   "settings": {
     "import/resolver": {

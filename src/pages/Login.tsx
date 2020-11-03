@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ORGANIZATIONS_METADATA_COLLECTION } from '../global/constants/database';
 import Database from '../global/functions/database';
+import { loadImage } from '../global/functions/storage';
 import { Maybe } from '../global/types/misc';
 import { OrganizationMetadata } from '../global/types/organization';
+import defaultLogo from '../assets/default-logo.png';
 
 const Login: React.FC = () => {
   const [initializing, setIntitializing] = useState(true);
@@ -30,7 +32,7 @@ const Login: React.FC = () => {
         if (res) {
           const org = res[0];
 
-          setOrganizationMeta(org);
+          setOrganizationMeta(await loadImage(org));
         }
       }
 
@@ -50,12 +52,33 @@ const Login: React.FC = () => {
       return <>Loading</>;
     }
 
-    // Organization not detected
     if (organizationMeta) {
-      return <>Login for the {organizationMeta.name}</>;
+      return (
+        <>
+          Login for the {organizationMeta.name}
+          <img
+            alt="Organization Logo"
+            src={organizationMeta.image || defaultLogo}
+            style={{
+              height: 200
+            }}
+          />
+        </>
+      );
     }
 
-    return <>Login</>;
+    return (
+      <>
+        Login
+        <img
+          alt="App Logo"
+          src={defaultLogo}
+          style={{
+            height: 200
+          }}
+        />
+      </>
+    );
   };
 
   return showView();
