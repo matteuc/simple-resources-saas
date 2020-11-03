@@ -1,28 +1,36 @@
 import * as React from 'react';
-import logo from './logo.svg';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
+} from 'react-router-dom';
+
 import './App.css';
-import { AuthProvider } from './context/Auth';
+import { AuthProvider, useAuth } from './context/Auth';
 import { OrganizationProvider } from './context/Organization';
 import { ThemeProvider } from './context/Theme';
+import { HOME, LOGIN } from './global/constants/routes';
+import Login from './pages/Login';
+import Home from './pages/Home';
 
 const Main: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const { user } = useAuth();
+
+  return user ? (
+    <Router>
+      <Switch>
+        <Route exact path={HOME} component={Home} />
+        <Route component={() => <Redirect to={LOGIN} />} />
+      </Switch>
+    </Router>
+  ) : (
+    <Router>
+      <Switch>
+        <Route exact path={LOGIN} component={Login} />
+        <Route component={() => <Redirect to={LOGIN} />} />
+      </Switch>
+    </Router>
   );
 };
 

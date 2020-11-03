@@ -89,6 +89,71 @@ const setDocument = async <T>(
   return payload;
 };
 
+interface StandardDocument {
+  [key: string]: any;
+}
+
+/**
+ *
+ * @param groupPath
+ * @param query
+ * Providing an array to one of the fields in the query will filter for documents
+ * with the matching field containing any specified items
+ * @param db
+ */
+const queryGroupDocuments = async <T extends StandardDocument>(
+  groupPath: string,
+  query?: Record<string, any>,
+  db?: firebase.database.Database
+): Promise<Maybe<Array<T>>> => {
+  if (db) {
+    const groupDoc = await getDocument<Record<string, T>>(groupPath, db);
+
+    if (groupDoc) {
+      const docs: Array<T> = [];
+
+      if (query) {
+        docs.push(
+          ...Object.values(groupDoc).filter((doc) => {
+            return Object.entries(query).every(([key, value]) => {
+              if (Array.isArray(value)) {
+                if (!Array.isArray(doc[key])) return false;
+
+                const items = doc[key] as Array<any>;
+
+                return value.every((val) => items.includes(val));
+              }
+
+              return doc[key] === value;
+            });
+          })
+        );
+      } else {
+        docs.push(...Object.values(groupDoc));
+      }
+
+      return docs;
+    }
+  }
+
+  let storeQuery: firebase.firestore.Query<firebase.firestore.DocumentData> = main.store.collection(
+    groupPath
+  );
+
+  if (query) {
+    // TODO - Comparison operators (gte, lte, etc.) not supported yet
+    Object.entries(query).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        storeQuery = storeQuery.where(key, 'array-contains-any', value);
+      } else {
+        storeQuery = storeQuery.where(key, '==', value);
+      }
+    });
+  }
+
+  return (await storeQuery.get()).docs.map((doc) => doc.data() as T);
+};
+
 /**
  * Generate a unique document key for the specified group
  * @param groupPath Path to object or collection to generate a unique key for
@@ -139,5 +204,6 @@ export default {
   deleteDocument,
   updateDocument,
   getUniqueGroupKey,
-  watchDocument
+  watchDocument,
+  queryGroupDocuments
 };
