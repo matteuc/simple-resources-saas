@@ -19,7 +19,10 @@ export type AuthState = {
   signUp: (
     email: string,
     password: string,
-    name: string,
+    form: {
+      name: string;
+      image?: string;
+    },
     orgForm?: {
       orgId: string;
       accessCode: string;
@@ -114,7 +117,7 @@ const AuthProvider: React.FC = ({ children }) => {
   const signUp: AuthState['signUp'] = async (
     email,
     password,
-    name,
+    { name, image },
     orgForm
   ) => {
     let organizationId: User['currentOrganizationId'];
@@ -150,6 +153,8 @@ const AuthProvider: React.FC = ({ children }) => {
       await Database.setDocument<User>(generateUserPath(userId), {
         id: userId,
         currentOrganizationId: organizationId,
+        name,
+        image,
         organizations: {
           ...(organizationId
             ? {
