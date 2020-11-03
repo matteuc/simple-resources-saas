@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import { AuthProvider } from './context/Auth';
 import { OrganizationProvider } from './context/Organization';
+import { ThemeProvider } from './context/Theme';
 
 const Main: React.FC = () => {
   return (
@@ -28,7 +29,9 @@ const Main: React.FC = () => {
 const App: React.FC = () => (
   <AuthProvider>
     <OrganizationProvider>
-      <Main />
+      <ThemeProvider>
+        <Main />
+      </ThemeProvider>
     </OrganizationProvider>
   </AuthProvider>
 );
