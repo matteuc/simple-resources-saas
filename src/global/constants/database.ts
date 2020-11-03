@@ -7,3 +7,6 @@ export const generateUserPath = (userId: string): string =>
 
 export const generateOrganizationsPath = (orgId: string): string =>
   `${ORGANIZATIONS_COLLECTION}/${orgId}`;
+
+export const generateOrganizationMetadataPath = (orgId: string): string =>
+  `${ORGANIZATIONS_METADATA_COLLECTION}/${orgId}`;

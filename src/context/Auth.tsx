@@ -8,7 +8,8 @@ import { User } from '../global/types/user';
 import Database from '../global/functions/database';
 import {
   generateOrganizationsPath,
-  generateUserPath
+  generateUserPath,
+  generateOrganizationMetadataPath
 } from '../global/constants/database';
 
 export type AuthState = {
@@ -113,19 +114,19 @@ const AuthProvider: React.FC = ({ children }) => {
     let organizationId: User['currentOrganizationId'];
 
     if (orgForm) {
-      const org = await Database.getDocument<Organization>(
-        generateOrganizationsPath(orgForm.orgId)
+      const orgMeta = await Database.getDocument<Organization>(
+        generateOrganizationMetadataPath(orgForm.orgId)
       );
 
-      if (!org) {
+      if (!orgMeta) {
         throw new Error(AuthErrors.ORGANIZATION_DNE);
       }
 
-      if (org.accessCode !== orgForm.accessCode) {
+      if (orgMeta.accessCode !== orgForm.accessCode) {
         throw new Error(AuthErrors.ACCESS_CODE_INCORRECT);
       }
 
-      organizationId = org.id;
+      organizationId = orgMeta.id;
     }
 
     const cred = await main.auth.createUserWithEmailAndPassword(
@@ -139,6 +140,7 @@ const AuthProvider: React.FC = ({ children }) => {
       throw new Error(AuthErrors.SIGNUP_FAILED);
     }
     try {
+      // Save user in main Firestore
       await Database.setDocument<User>(generateUserPath(userId), {
         id: userId,
         currentOrganizationId: organizationId,
@@ -150,7 +152,6 @@ const AuthProvider: React.FC = ({ children }) => {
             : {})
         }
       });
-
       return;
     } catch (e) {
       throw new Error(AuthErrors.SIGNUP_FAILED);

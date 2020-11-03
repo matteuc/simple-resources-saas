@@ -1,11 +1,6 @@
 {
   "rules": {
-    "users": {
-      "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
-      }
-    },
-    ".read": "root.child('users/' + auth.uid).exists()"
+    ".read": "auth != null",
+    ".write": "false"
   }
 }
