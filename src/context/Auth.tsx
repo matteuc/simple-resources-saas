@@ -5,6 +5,12 @@ import AuthErrors from '../global/errors/auth';
 import { Maybe } from '../global/types/misc';
 import { Organization } from '../global/types/organization';
 import { User } from '../global/types/user';
+import Database from '../global/functions/database';
+import {
+  generateOrganizationsPath,
+  generateUserPath,
+  USERS_COLLECTION
+} from '../global/constants/database';
 
 export type AuthState = {
   user: Maybe<User>;
@@ -63,9 +69,9 @@ const AuthProvider: React.FC = ({ children }) => {
       throw new Error(AuthErrors.LOGIN_FAILED);
     }
 
-    const retrievedUser: Maybe<User> = (
-      await main.store.collection('users').doc(userId).get()
-    ).data() as User;
+    const retrievedUser: Maybe<User> = await Database.getDocument<User>(
+      generateUserPath(userId)
+    );
 
     if (!retrievedUser) {
       // Throw error if the associated user's document DNE
@@ -76,9 +82,9 @@ const AuthProvider: React.FC = ({ children }) => {
     if (orgId) {
       // If the user is in the specified org...
       if (retrievedUser.organizations?.[orgId]) {
-        const org: Maybe<Organization> = (
-          await main.store.collection('organizations').doc(orgId).get()
-        ).data() as Organization;
+        const org: Maybe<Organization> = await Database.getDocument<
+          Organization
+        >(generateOrganizationsPath(orgId));
 
         // If the organization DNE...
         if (!org) {
@@ -105,7 +111,51 @@ const AuthProvider: React.FC = ({ children }) => {
    * @param orgForm
    */
   const signUp: AuthState['signUp'] = async (email, password, orgForm) => {
-    console.log(email, password, orgForm);
+    let organizationId: User['currentOrganizationId'];
+
+    if (orgForm) {
+      const org = await Database.getDocument<Organization>(
+        generateOrganizationsPath(orgForm.orgId)
+      );
+
+      if (!org) {
+        throw new Error(AuthErrors.ORGANIZATION_DNE);
+      }
+
+      if (org.accessCode !== orgForm.accessCode) {
+        throw new Error(AuthErrors.ACCESS_CODE_INCORRECT);
+      }
+
+      organizationId = org.id;
+    }
+
+    const cred = await main.auth.createUserWithEmailAndPassword(
+      email,
+      password
+    );
+
+    const userId = cred.user?.uid;
+
+    if (!userId) {
+      throw new Error(AuthErrors.SIGNUP_FAILED);
+    }
+    try {
+      await Database.setDocument<User>(generateUserPath(userId), {
+        id: userId,
+        currentOrganizationId: organizationId,
+        organizations: {
+          ...(organizationId
+            ? {
+                [organizationId]: userId
+              }
+            : {})
+        }
+      });
+
+      return;
+    } catch (e) {
+      throw new Error(AuthErrors.SIGNUP_FAILED);
+    }
   };
 
   // Properly set user and org. if auth status changes
@@ -115,21 +165,21 @@ const AuthProvider: React.FC = ({ children }) => {
         // Retrieve user's organization (if applicable) and profile
         const userId = currentUser.uid;
 
-        const retrievedUser: Maybe<User> = (
-          await main.store.collection('users').doc(userId).get()
-        ).data() as User;
+        const retrievedUser: Maybe<User> = await Database.getDocument<User>(
+          generateUserPath(userId)
+        );
 
         if (!retrievedUser) {
           _clear();
         }
 
-        const orgId = retrievedUser?.organizationId;
+        const orgId = retrievedUser?.currentOrganizationId;
 
         // If the user is already signed into a specific organization...
         if (orgId) {
-          const org: Maybe<Organization> = (
-            await main.store.collection('organizations').doc(orgId).get()
-          ).data() as Organization;
+          const org: Maybe<Organization> = await Database.getDocument<
+            Organization
+          >(generateOrganizationsPath(orgId));
 
           setOrganization(org);
         }
@@ -143,6 +193,15 @@ const AuthProvider: React.FC = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      return Database.watchDocument<User>(generateUserPath(user.id), (u) =>
+        setUser(u)
+      );
+    }
+    return () => {};
+  }, [user]);
 
   return (
     <AuthContext.Provider

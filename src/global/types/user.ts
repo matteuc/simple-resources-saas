@@ -2,6 +2,6 @@ import { Organization } from './organization';
 
 export type User = {
   id: string;
-  organizationId?: string;
+  currentOrganizationId?: string;
   organizations?: Record<Organization['id'], User['id']>;
 };
