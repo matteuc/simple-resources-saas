@@ -1,5 +1,6 @@
 import firebase from 'firebase';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import LoadingPage from '../components/LoadingPage';
 import { initializeOrgConnection, OrganizationConnection } from '../connection';
 import { Maybe } from '../global/types/misc';
 import { Organization } from '../global/types/organization';
@@ -23,37 +24,77 @@ const OrganizationProvider: React.FC = ({ children }) => {
   const [connection, setConnection] = useState<Maybe<OrganizationConnection>>(
     null
   );
-  const { organization } = useAuth();
+
+  const [initializing, setInitializing] = useState<boolean>(true);
+
+  const { organization, firebaseUser } = useAuth();
 
   useEffect(() => {
-    if (organization) {
-      const organizationApp = firebase.apps.find(
-        (a) => a.name === organization.name
-      );
+    setInitializing(true);
+    let unsubscribe = () => {};
+    let organizationApp: Maybe<firebase.app.App>;
 
+    if (organization) {
+      organizationApp = firebase.apps.find((a) => a.name === organization.name);
+
+      // If no app found...
       if (!organizationApp) {
-        const { db, storage, disconnect } = initializeOrgConnection(
+        const { auth, db, storage, disconnect } = initializeOrgConnection(
           organization.name,
           organization.databaseUrl,
           organization.storageUrl
         );
+
+        organizationApp = firebase.apps.find(
+          (a) => a.name === organization.name
+        );
+
         setConnection({
           db,
-          storage
+          storage,
+          auth
         });
 
-        return disconnect;
+        unsubscribe = disconnect;
+      }
+      // Otherwise reuse the previous connection
+      else {
+        setConnection({
+          db: organizationApp.database(),
+          storage: organizationApp.storage(),
+          auth: organizationApp.auth()
+        });
+
+        unsubscribe = () => organizationApp?.delete();
       }
     }
 
-    return () => {};
-  }, [organization?.name, organization?.databaseUrl, organization?.storageUrl]);
+    if (organizationApp && firebaseUser) {
+      organizationApp
+        .auth()
+        .updateCurrentUser(firebaseUser)
+        .then(() => {
+          setInitializing(false);
+        });
+
+      return unsubscribe;
+    }
+
+    setInitializing(false);
+
+    return unsubscribe;
+  }, [
+    organization?.name,
+    organization?.storageUrl,
+    organization?.databaseUrl,
+    firebaseUser
+  ]);
 
   return (
     <OrganizationContext.Provider
       value={{ db: connection?.db, storage: connection?.storage, organization }}
     >
-      {children}
+      {initializing ? <LoadingPage /> : children}
     </OrganizationContext.Provider>
   );
 };

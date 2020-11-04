@@ -17,6 +17,7 @@ import LoadingPage from '../components/LoadingPage';
 
 export type AuthState = {
   user: Maybe<User>;
+  firebaseUser: Maybe<firebase.User>;
   organization: Maybe<Organization>;
   login: (email: string, password: string, orgId?: string) => Promise<void>;
   signUp: (
@@ -36,6 +37,7 @@ export type AuthState = {
 const initialState: AuthState = {
   user: null,
   organization: null,
+  firebaseUser: null,
   login: async () => undefined,
   signUp: async () => undefined
 };
@@ -48,6 +50,10 @@ const AuthProvider: React.FC = ({ children }) => {
   const [initializing, setInitializing] = useState(true);
 
   const [organization, setOrganization] = useState<AuthState['organization']>(
+    null
+  );
+
+  const [firebaseUser, setFirebaseUser] = useState<AuthState['firebaseUser']>(
     null
   );
 
@@ -159,7 +165,6 @@ const AuthProvider: React.FC = ({ children }) => {
     );
 
     const userId = cred.user?.uid;
-
     if (!userId) {
       throw new Error(AuthErrors.SIGNUP_FAILED);
     }
@@ -191,12 +196,14 @@ const AuthProvider: React.FC = ({ children }) => {
 
   // Properly set user and org. if auth status changes
   useEffect(() => {
-    const unsubscribe = main.auth.onAuthStateChanged(async (currentUser) => {
+    const initialize = async (currentUser: Maybe<firebase.User>) => {
       setInitializing(true);
 
       if (currentUser) {
         // Retrieve user's organization (if applicable) and profile
         const userId = currentUser.uid;
+
+        setFirebaseUser(currentUser);
 
         const retrievedUser: Maybe<User> = await Database.getDocument<User>(
           generateUserPath(userId)
@@ -226,7 +233,9 @@ const AuthProvider: React.FC = ({ children }) => {
         _clear();
       }
       setInitializing(false);
-    });
+    };
+
+    const unsubscribe = main.auth.onAuthStateChanged(initialize);
 
     return () => unsubscribe();
   }, []);
@@ -241,7 +250,7 @@ const AuthProvider: React.FC = ({ children }) => {
       );
     }
     return () => {};
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (organization) {
@@ -253,11 +262,12 @@ const AuthProvider: React.FC = ({ children }) => {
       );
     }
     return () => {};
-  }, [organization]);
+  }, [organization?.id]);
   return (
     <AuthContext.Provider
       value={{
         user,
+        firebaseUser,
         organization,
         login,
         signUp

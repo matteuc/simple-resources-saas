@@ -8,5 +8,9 @@ service firebase.storage {
       allow read: if true;
       allow write: if false;
     }
+    match /resources/{resourceId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
   }
 }

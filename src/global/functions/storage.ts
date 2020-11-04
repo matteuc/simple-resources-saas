@@ -21,10 +21,11 @@ const loadImage = async <
     image: Maybe<string>; // Storage Object Key
   }
 >(
-  imageDoc: T
+  imageDoc: T,
+  storage?: firebase.storage.Storage
 ): Promise<T> => ({
   ...imageDoc,
-  image: imageDoc.image ? await getObjectUrl(imageDoc.image) : null
+  image: imageDoc.image ? await getObjectUrl(imageDoc.image, storage) : null
 });
 
 export { getObjectUrl, loadImage };

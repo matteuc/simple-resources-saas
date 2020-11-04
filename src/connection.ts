@@ -20,6 +20,7 @@ export const main = {
 export type OrganizationConnection = {
   db: firebase.database.Database;
   storage: firebase.storage.Storage;
+  auth: firebase.auth.Auth;
 };
 
 /**
@@ -38,6 +39,8 @@ export const initializeOrgConnection = (
     firebase.apps.find((a) => a.name === orgName) ||
     firebase.initializeApp(
       {
+        apiKey: config.apiKey,
+        auth: config.authDomain,
         databaseURL,
         storageBucket: storageURL
       },
@@ -45,6 +48,7 @@ export const initializeOrgConnection = (
     );
 
   return {
+    auth: firebase.auth(),
     db: firebase.database(app),
     storage: firebase.storage(app),
     disconnect: () => app.delete()

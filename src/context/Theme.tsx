@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   createMuiTheme,
   Theme,
+  ThemeOptions,
   ThemeProvider as MuiThemeProvider
 } from '@material-ui/core/styles';
 import { CssBaseline, useMediaQuery } from '@material-ui/core';
@@ -19,24 +20,28 @@ const ThemeProvider: React.FC = ({ children }) => {
 
   const { organization } = useOrganization();
 
+  const defaultThemeOptions: ThemeOptions = {
+    ...customTheme,
+    palette: {
+      ...customTheme.palette,
+      type: prefersDarkMode ? 'dark' : 'light'
+    }
+  };
+
   useEffect(() => {
     if (organization) {
-      const orgTheme = createMuiTheme(organization.theme);
+      const orgTheme = createMuiTheme(
+        organization.theme || defaultThemeOptions
+      );
 
       setCurrentTheme(orgTheme);
     }
   }, [organization]);
 
   useEffect(() => {
-    const newTheme = createMuiTheme({
-      ...customTheme,
-      palette: {
-        ...customTheme.palette,
-        type: prefersDarkMode ? 'dark' : 'light'
-      }
-    });
+    const newTheme = createMuiTheme(defaultThemeOptions);
 
-    setCurrentTheme({ ...newTheme });
+    setCurrentTheme(newTheme);
   }, [prefersDarkMode]);
 
   return (
