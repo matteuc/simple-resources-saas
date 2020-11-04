@@ -1,6 +1,14 @@
-import { Box, makeStyles, Paper, Typography } from '@material-ui/core';
+import {
+  Box,
+  IconButton,
+  makeStyles,
+  Paper,
+  Typography
+} from '@material-ui/core';
+import { ExitToApp } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import ResourceCard from '../components/ResourceCard';
+import { useAuth } from '../context/Auth';
 import { useOrganization } from '../context/Organization';
 import database from '../global/functions/database';
 import { Resource } from '../global/types/resource';
@@ -10,7 +18,8 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.default,
     flex: 1,
     display: 'flex',
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
+    flexDirection: 'column'
   },
   paper: {
     padding: theme.spacing(2),
@@ -49,11 +58,16 @@ const useStyles = makeStyles((theme) => ({
   },
   resources: {
     overflow: 'auto',
-    width: '70%',
+    width: '100%',
+    maxWidth: 350,
     minHeight: '100%',
     display: 'flex',
     flexDirection: 'column',
     margin: 'auto'
+  },
+  topBar: {
+    display: 'flex',
+    justifyContent: 'flex-end'
   }
 }));
 
@@ -62,6 +76,8 @@ const Home: React.FC = () => {
   const { db, organization } = useOrganization();
   const [resources, setResources] = useState<Array<Resource>>([]);
   const [loading, setLoading] = useState(true); // TODO - Add loading screen
+  const [loggingOut, setLoggingOut] = useState(false);
+  const { logout } = useAuth();
 
   useEffect(() => {
     const loadResources = async () => {
@@ -85,8 +101,19 @@ const Home: React.FC = () => {
     }
   }, [db]);
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    setLoggingOut(false);
+  };
+
   return (
     <Box className={classes.root}>
+      <Box className={classes.topBar}>
+        <IconButton disabled={loggingOut} onClick={handleLogout}>
+          <ExitToApp />
+        </IconButton>
+      </Box>
       <Paper className={classes.paper}>
         <Box className={classes.titleContainer}>
           <Typography variant="h4" className={classes.title}>

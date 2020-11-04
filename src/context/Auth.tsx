@@ -32,6 +32,7 @@ export type AuthState = {
       accessCode: string;
     }
   ) => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const initialState: AuthState = {
@@ -39,7 +40,8 @@ const initialState: AuthState = {
   organization: null,
   firebaseUser: null,
   login: async () => undefined,
-  signUp: async () => undefined
+  signUp: async () => undefined,
+  logout: async () => undefined
 };
 
 const AuthContext = createContext<AuthState>(initialState);
@@ -194,6 +196,11 @@ const AuthProvider: React.FC = ({ children }) => {
     }
   };
 
+  const logout: AuthState['logout'] = async () => {
+    await main.auth.signOut();
+    _clear();
+  };
+
   // Properly set user and org. if auth status changes
   useEffect(() => {
     const initialize = async (currentUser: Maybe<firebase.User>) => {
@@ -270,6 +277,7 @@ const AuthProvider: React.FC = ({ children }) => {
         firebaseUser,
         organization,
         login,
+        logout,
         signUp
       }}
     >
