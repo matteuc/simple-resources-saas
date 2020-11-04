@@ -1,3 +1,4 @@
+import firebase from 'firebase';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { initializeOrgConnection, OrganizationConnection } from '../connection';
 import { Maybe } from '../global/types/misc';
@@ -26,21 +27,27 @@ const OrganizationProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (organization) {
-      const { db, storage, disconnect } = initializeOrgConnection(
-        organization.name,
-        organization.databaseUrl,
-        organization.storageUrl
+      const organizationApp = firebase.apps.find(
+        (a) => a.name === organization.name
       );
-      setConnection({
-        db,
-        storage
-      });
 
-      return disconnect;
+      if (!organizationApp) {
+        const { db, storage, disconnect } = initializeOrgConnection(
+          organization.name,
+          organization.databaseUrl,
+          organization.storageUrl
+        );
+        setConnection({
+          db,
+          storage
+        });
+
+        return disconnect;
+      }
     }
 
     return () => {};
-  }, [organization]);
+  }, [organization?.name, organization?.databaseUrl, organization?.storageUrl]);
 
   return (
     <OrganizationContext.Provider

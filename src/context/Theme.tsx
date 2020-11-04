@@ -47,7 +47,7 @@ const ThemeProvider: React.FC = ({ children }) => {
   );
 };
 
-const useTheme = () => {
+const useTheme = (): null => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error(`useTheme must be used within an ThemeProvider`);
