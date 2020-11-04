@@ -3,14 +3,17 @@ import {
   IconButton,
   makeStyles,
   Paper,
-  Typography
+  Typography,
+  useTheme
 } from '@material-ui/core';
 import { ExitToApp } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
+import ReactLoading from 'react-loading';
 import ResourceCard from '../components/ResourceCard';
 import { useAuth } from '../context/Auth';
 import { useOrganization } from '../context/Organization';
 import database from '../global/functions/database';
+import { RESOURCES_COLLECTION } from '../global/constants/database';
 import { Resource } from '../global/types/resource';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,6 +71,9 @@ const useStyles = makeStyles((theme) => ({
   topBar: {
     display: 'flex',
     justifyContent: 'flex-end'
+  },
+  loading: {
+    margin: 'auto'
   }
 }));
 
@@ -78,11 +84,12 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true); // TODO - Add loading screen
   const [loggingOut, setLoggingOut] = useState(false);
   const { logout } = useAuth();
+  const theme = useTheme();
 
   useEffect(() => {
     const loadResources = async () => {
       const data = await database.queryGroupDocuments<Resource>(
-        'resources',
+        RESOURCES_COLLECTION,
         {},
         db || undefined
       );
@@ -99,6 +106,20 @@ const Home: React.FC = () => {
       console.error(e);
       setLoading(false);
     }
+  }, [db]);
+
+  useEffect(() => {
+    if (db) {
+      return database.watchDocument<Record<string, Resource>>(
+        RESOURCES_COLLECTION,
+        (resourceMap) => {
+          setResources(Object.values(resourceMap));
+        },
+        db
+      );
+    }
+
+    return () => {};
   }, [db]);
 
   const handleLogout = async () => {
@@ -129,9 +150,17 @@ const Home: React.FC = () => {
         </Box>
         <Box className={classes.resourcesContainer}>
           <Box className={classes.resources}>
-            {resources.map((r) => (
-              <ResourceCard key={r.id} resource={r} />
-            ))}
+            {loading ? (
+              <ReactLoading
+                className={classes.loading}
+                type="spinningBubbles"
+                color={theme.palette.primary.light}
+                height="20%"
+                width="20%"
+              />
+            ) : (
+              resources.map((r) => <ResourceCard key={r.id} resource={r} />)
+            )}
           </Box>
         </Box>
       </Paper>
