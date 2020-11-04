@@ -248,7 +248,7 @@ const AuthProvider: React.FC = ({ children }) => {
       return Database.watchDocument<Organization>(
         generateOrganizationsPath(organization.id),
         async (o) => {
-          setUser(o ? await loadImage(o) : null);
+          setOrganization(o ? await loadImage(o) : null);
         }
       );
     }
