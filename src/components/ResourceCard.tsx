@@ -15,7 +15,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    backgroundColor: theme.palette.grey[500]
   }
 }));
 

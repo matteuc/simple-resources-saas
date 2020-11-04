@@ -50,10 +50,10 @@ const useStyles = makeStyles((theme) => ({
   resources: {
     overflow: 'auto',
     width: '70%',
+    minHeight: '100%',
     display: 'flex',
     flexDirection: 'column',
-    margin: 'auto',
-    height: '100%'
+    margin: 'auto'
   }
 }));
 
