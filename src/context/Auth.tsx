@@ -67,46 +67,51 @@ const AuthProvider: React.FC = ({ children }) => {
       throw new Error(AuthErrors.WRONG_EMAIL_PASSWORD);
     }
 
-    const userId = cred.user?.uid;
+    try {
+      const userId = cred.user?.uid;
 
-    // Throw error if no user ID exists
-    if (!userId) {
-      throw new Error(AuthErrors.LOGIN_FAILED);
-    }
+      // Throw error if no user ID exists
+      if (!userId) {
+        throw new Error(AuthErrors.LOGIN_FAILED);
+      }
 
-    const retrievedUser: Maybe<User> = await Database.getDocument<User>(
-      generateUserPath(userId)
-    );
+      const retrievedUser: Maybe<User> = await Database.getDocument<User>(
+        generateUserPath(userId)
+      );
 
-    if (!retrievedUser) {
-      // Throw error if the associated user's document DNE
-      throw new Error(AuthErrors.LOGIN_FAILED);
-    }
+      if (!retrievedUser) {
+        // Throw error if the associated user's document DNE
+        throw new Error(AuthErrors.LOGIN_FAILED);
+      }
 
-    // If the user wants to login into a specific organization
-    if (orgId) {
-      // If the user is in the specified org...
-      if (retrievedUser.organizations?.[orgId]) {
-        const org: Maybe<Organization> = await Database.getDocument<
-          Organization
-        >(generateOrganizationsPath(orgId));
+      // If the user wants to login into a specific organization
+      if (orgId) {
+        // If the user is in the specified org...
+        if (retrievedUser.organizations?.[orgId]) {
+          const org: Maybe<Organization> = await Database.getDocument<
+            Organization
+          >(generateOrganizationsPath(orgId));
 
-        // If the organization DNE...
-        if (!org) {
-          // Throw error if the organization no longer exists
-          throw new Error(AuthErrors.ORGANIZATION_DNE);
+          // If the organization DNE...
+          if (!org) {
+            // Throw error if the organization no longer exists
+            throw new Error(AuthErrors.ORGANIZATION_DNE);
+          }
+
+          setOrganization(org);
         }
+        // Otherwise...
+        else {
+          // Throw error if the user is not in the specified organization
+          throw new Error(AuthErrors.NOT_IN_ORGANIZATION);
+        }
+      }
 
-        setOrganization(org);
-      }
-      // Otherwise...
-      else {
-        // Throw error if the user is not in the specified organization
-        throw new Error(AuthErrors.NOT_IN_ORGANIZATION);
-      }
+      setUser(retrievedUser);
+    } catch (e) {
+      main.auth.signOut();
+      throw e;
     }
-
-    setUser(retrievedUser);
   };
 
   /**
