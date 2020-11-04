@@ -145,6 +145,10 @@ const AuthProvider: React.FC = ({ children }) => {
       organizationId = orgMeta.id;
     }
 
+    if ((await main.auth.fetchSignInMethodsForEmail(email)).length) {
+      throw new Error(AuthErrors.USER_EXISTS);
+    }
+
     const cred = await main.auth.createUserWithEmailAndPassword(
       email,
       password

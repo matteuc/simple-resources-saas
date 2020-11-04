@@ -11,15 +11,17 @@ import {
   Typography
 } from '@material-ui/core';
 import { Visibility, VisibilityOff, VpnKey } from '@material-ui/icons';
+import { useDebouncedCallback } from 'use-debounce';
 
-import { ORGANIZATIONS_METADATA_COLLECTION } from '../global/constants/database';
-import Database from '../global/functions/database';
+import AuthErrors from '../global/errors/auth';
 import { loadImage } from '../global/functions/storage';
 import { Maybe } from '../global/types/misc';
 import { OrganizationMetadata } from '../global/types/organization';
 import defaultLogo from '../assets/default-logo.png';
 import LoadingPage from '../components/LoadingPage';
 import { useAuth } from '../context/Auth';
+import { getOrganizationMetaFromSubdomain } from '../global/functions/organizations';
+import { main } from '../connection';
 
 type FormFieldData = {
   message: Maybe<string>;
@@ -128,28 +130,27 @@ const Login: React.FC = () => {
   const [form, setForm] = useState(initialForm);
   const { login } = useAuth();
 
+  const checkUserExistsUnderEmail = useDebouncedCallback(
+    async (email: string) => {
+      const error = !(await main.auth.fetchSignInMethodsForEmail(email)).length;
+      setForm((currentForm) => ({
+        ...currentForm,
+        email: {
+          ...currentForm.email,
+          error,
+          message: error ? AuthErrors.USER_DNE : null
+        }
+      }));
+    },
+    800
+  );
+
   useEffect(() => {
     const initializeLogin = async () => {
-      const { hostname: domain } = window.location;
+      const org = await getOrganizationMetaFromSubdomain();
 
-      const containsSubdomain = domain.includes('.');
-
-      if (containsSubdomain) {
-        const domainParts = domain.split('.');
-        const orgSlug = domainParts[0];
-
-        const res = await Database.queryGroupDocuments<OrganizationMetadata>(
-          ORGANIZATIONS_METADATA_COLLECTION,
-          {
-            slug: orgSlug
-          }
-        );
-
-        if (res) {
-          const org = res[0];
-
-          setOrganizationMeta(await loadImage(org));
-        }
+      if (org) {
+        setOrganizationMeta(await loadImage(org));
       }
 
       setIntitializing(false);
@@ -189,6 +190,10 @@ const Login: React.FC = () => {
     );
 
     const errorMessage = await handleValidation(name, value);
+
+    if (name === 'email' && !errorMessage) {
+      checkUserExistsUnderEmail.callback(e.target.value);
+    }
 
     setForm(
       (newForm) =>
@@ -297,7 +302,7 @@ const Login: React.FC = () => {
 
           <Box className={classes.submit}>
             <Fab
-              disabled={loggingIn}
+              disabled={loggingIn || !Object.values(form).every((f) => f.error)}
               onClick={handleLogin}
               color="secondary"
               aria-label="edit"
