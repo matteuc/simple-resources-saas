@@ -51,7 +51,7 @@ const OrganizationProvider: React.FC = ({ children }) => {
   );
 };
 
-const useOrganization = () => {
+const useOrganization = (): OrganizationState => {
   const context = useContext(OrganizationContext);
   if (context === undefined) {
     throw new Error(

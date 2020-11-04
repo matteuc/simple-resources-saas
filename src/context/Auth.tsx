@@ -12,6 +12,8 @@ import {
   generateOrganizationMetadataPath
 } from '../global/constants/database';
 import { loadImage } from '../global/functions/storage';
+import { getOrganizationMetaFromSubdomain } from '../global/functions/organizations';
+import LoadingPage from '../components/LoadingPage';
 
 export type AuthState = {
   user: Maybe<User>;
@@ -42,6 +44,8 @@ const AuthContext = createContext<AuthState>(initialState);
 
 const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<AuthState['user']>(null);
+
+  const [initializing, setInitializing] = useState(true);
 
   const [organization, setOrganization] = useState<AuthState['organization']>(
     null
@@ -127,7 +131,7 @@ const AuthProvider: React.FC = ({ children }) => {
     { name, image },
     orgForm
   ) => {
-    let organizationId: User['currentOrganizationId'];
+    let organizationId: Organization['id'] = '';
 
     if (orgForm) {
       const orgMeta = await Database.getDocument<Organization>(
@@ -161,21 +165,26 @@ const AuthProvider: React.FC = ({ children }) => {
     }
     try {
       // Save user in main Firestore
-      await Database.setDocument<User>(generateUserPath(userId), {
-        id: userId,
-        currentOrganizationId: organizationId,
-        name,
-        image,
-        organizations: {
-          ...(organizationId
-            ? {
-                [organizationId]: true
-              }
-            : {})
+      const newUser = await Database.setDocument<User>(
+        generateUserPath(userId),
+        {
+          id: userId,
+          name,
+          image: image || null,
+          organizations: {
+            ...(organizationId
+              ? {
+                  [organizationId]: true
+                }
+              : {})
+          }
         }
-      });
+      );
+
+      setUser(newUser);
       return;
     } catch (e) {
+      console.error(e);
       throw new Error(AuthErrors.SIGNUP_FAILED);
     }
   };
@@ -183,6 +192,8 @@ const AuthProvider: React.FC = ({ children }) => {
   // Properly set user and org. if auth status changes
   useEffect(() => {
     const unsubscribe = main.auth.onAuthStateChanged(async (currentUser) => {
+      setInitializing(true);
+
       if (currentUser) {
         // Retrieve user's organization (if applicable) and profile
         const userId = currentUser.uid;
@@ -193,17 +204,20 @@ const AuthProvider: React.FC = ({ children }) => {
 
         if (!retrievedUser) {
           _clear();
+          return;
         }
 
-        const orgId = retrievedUser?.currentOrganizationId;
+        const orgMeta = await getOrganizationMetaFromSubdomain();
 
-        // If the user is already signed into a specific organization...
-        if (orgId) {
-          const org: Maybe<Organization> = await Database.getDocument<
-            Organization
-          >(generateOrganizationsPath(orgId));
+        if (orgMeta) {
+          // If the user is already signed into a specific organization...
+          if (retrievedUser.organizations?.[orgMeta.id]) {
+            const org: Maybe<Organization> = await Database.getDocument<
+              Organization
+            >(generateOrganizationsPath(orgMeta.id));
 
-          setOrganization(org ? await loadImage(org) : null);
+            setOrganization(org ? await loadImage(org) : null);
+          }
         }
 
         setUser(retrievedUser ? await loadImage(retrievedUser) : null);
@@ -211,6 +225,7 @@ const AuthProvider: React.FC = ({ children }) => {
         // Reset the stored organization (if applicable) and user profile
         _clear();
       }
+      setInitializing(false);
     });
 
     return () => unsubscribe();
@@ -248,12 +263,12 @@ const AuthProvider: React.FC = ({ children }) => {
         signUp
       }}
     >
-      {children}
+      {initializing ? <LoadingPage /> : children}
     </AuthContext.Provider>
   );
 };
 
-const useAuth = () => {
+const useAuth = (): AuthState => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error(`useAuth must be used within an AuthProvider`);

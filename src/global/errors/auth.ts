@@ -12,8 +12,7 @@ const USER_EXISTS = 'A user already exists with the given email.';
 
 const USER_DNE = 'A user does not exist with the given email.';
 
-const ACCESS_CODE_INCORRECT =
-  'The access code is incorrect for the specified organization.';
+const ACCESS_CODE_INCORRECT = 'The access code is incorrect.';
 
 export default {
   WRONG_EMAIL_PASSWORD,

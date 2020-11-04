@@ -30,3 +30,24 @@ export const getOrganizationMetaFromSubdomain = async (): Promise<
 
   return null;
 };
+
+export const verifyAccessCode = async (
+  code: string,
+  orgId: string
+): Promise<boolean> => {
+  const res = await Database.queryGroupDocuments<OrganizationMetadata>(
+    ORGANIZATIONS_METADATA_COLLECTION,
+    {
+      accessCode: code,
+      id: orgId
+    }
+  );
+
+  if (res) {
+    const org = res[0];
+
+    return Boolean(org);
+  }
+
+  return false;
+};

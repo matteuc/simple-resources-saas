@@ -1,12 +1,12 @@
 import React from 'react';
-import { Box, makeStyles } from '@material-ui/core';
+import { Box, makeStyles, useTheme } from '@material-ui/core';
 import ReactLoading from 'react-loading';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.grey[100],
     flex: 1,
-    display: 'flex'
+    display: 'flex',
+    backgroundColor: theme.palette.background.default
   },
   loading: {
     margin: 'auto'
@@ -15,13 +15,14 @@ const useStyles = makeStyles((theme) => ({
 
 const LoadingPage: React.FC = () => {
   const classes = useStyles();
+  const theme = useTheme();
 
   return (
     <Box className={classes.root}>
       <ReactLoading
         className={classes.loading}
         type="bubbles"
-        color="red"
+        color={theme.palette.primary.light}
         height="20%"
         width="20%"
       />
