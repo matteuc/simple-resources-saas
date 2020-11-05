@@ -69,7 +69,7 @@ Follow the instructions from [Step 2](https://firebase.google.com/docs/web/setup
 
 Last two steps!
 
-1. Run `yarn` or `npm i` to install the project's dependencies
+1. Run `yarn` to install the project's dependencies
 2. Run `yarn start` to start the project!
 
 #### Deploying the App
