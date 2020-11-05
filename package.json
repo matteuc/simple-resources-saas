@@ -29,8 +29,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "tsc --noEmit && eslint --fix --ext .js,.jsx,.ts,.tsx ./",
-    "prettier:write": "npx prettier --write **/*.{js,jsx,ts,tsx,json} && npx prettier --write *.{js,jsx,ts,tsx,json}",
+    "lint": "tsc --noEmit && eslint --fix --ext .ts,.tsx ./",
+    "prettier:write": "npx prettier --write **/*.{ts,tsx,json} && npx prettier --write *.{ts,tsx,json}",
     "lint:all": "pretty-quick --staged && yarn run lint"
   },
   "eslintConfig": {
@@ -62,7 +62,9 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "firebase-admin": "^9.3.0",
     "husky": "^4.3.0",
+    "inquirer": "^7.3.3",
     "prettier": "^2.1.2",
     "pretty-quick": "^3.1.0"
   },
