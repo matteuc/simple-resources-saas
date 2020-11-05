@@ -152,7 +152,11 @@ inquirer
           ...orgMeta,
           databaseUrl: orgDatabaseUrl,
           storageUrl: orgStorageUrl,
-          theme: {}
+          theme: {
+            resourcePaper: {
+              main: '#000080'
+            }
+          }
         };
 
         // Create organization meta. and organization in main store

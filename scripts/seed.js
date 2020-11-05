@@ -327,7 +327,11 @@ inquirer
             org = __assign(__assign({}, orgMeta), {
               databaseUrl: orgDatabaseUrl,
               storageUrl: orgStorageUrl,
-              theme: {}
+              theme: {
+                resourcePaper: {
+                  main: '#000080'
+                }
+              }
             });
             // Create organization meta. and organization in main store
             mainBatch.create(
