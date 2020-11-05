@@ -253,11 +253,14 @@ const AuthProvider: React.FC = ({ children }) => {
       setInitializing(false);
     };
 
-    const unsubscribe = authListening
-      ? main.auth.onAuthStateChanged(initialize)
-      : () => {};
+    let unsubscribe = () => {};
 
-    return () => unsubscribe();
+    if (authListening) {
+      const authUnsubscribe = main.auth.onAuthStateChanged(initialize);
+      unsubscribe = () => authUnsubscribe();
+    }
+
+    return unsubscribe;
   }, [authListening]);
 
   useEffect(() => {
