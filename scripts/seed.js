@@ -7,6 +7,8 @@ const orgLogoPath = path.join(__dirname, './org-logo.png');
 const newsImagePath = path.join(__dirname, './news.png');
 const NUM_RESOURCES = 3;
 const RESOURCE_LINK = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+const RESOURCE_DESCRIPTION =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 
 const ORGANIZATION_COLLECTION = 'organizations';
 const ORGANIZATION_META_COLLECTION = 'organizations-metdata';
@@ -15,7 +17,7 @@ const RESOURCES_COLLECTION = 'resources';
 let serviceAccount;
 
 try {
-  serviceAccount = require('./serviceAccount.json');
+  serviceAccount = require('../serviceAccount.json');
 } catch (e) {
   console.error(
     '\x1b[31m%s\x1b[0m',
@@ -55,15 +57,14 @@ inquirer
       try {
         console.log(
           '\x1b[36m%s\x1b[0m',
-          'We are seeding your database!',
-          'This may take a couple seconds.'
+          'We are seeding your database! This may take a couple seconds.'
         );
 
         const mainApp = admin.initializeApp(
           {
             credential: admin.credential.cert(serviceAccount),
-            databaseURL: mainStoreUrl,
-            storageBucket: mainStorageUrl
+            databaseURL: mainStoreUrl.trim(),
+            storageBucket: mainStorageUrl.trim()
           },
           'main'
         );
@@ -71,14 +72,25 @@ inquirer
         const orgApp = admin.initializeApp(
           {
             credential: admin.credential.cert(serviceAccount),
-            databaseURL: orgDatabaseUrl,
-            storageBucket: orgStorageUrl
+            databaseURL: orgDatabaseUrl.trim(),
+            storageBucket: orgStorageUrl.trim()
           },
           'org'
         );
 
+        const mainStore = mainApp.firestore();
+
+        if (
+          !(await mainStore.collection(ORGANIZATION_META_COLLECTION).get())
+            .empty
+        ) {
+          throw new Error(
+            'The database is not empty. A non-empty database cannot be seeded.'
+          );
+        }
+
         // Upload organization logo
-        const [{ path: orgLogoStoragePath }] = await mainApp
+        const [{ name: orgLogoStoragePath }] = await mainApp
           .storage()
           .bucket()
           .upload(orgLogoPath, {
@@ -86,7 +98,7 @@ inquirer
           });
 
         // Upload resource image to main storage
-        const [{ path: mainResourceStoragePath }] = await mainApp
+        const [{ name: mainResourceStoragePath }] = await mainApp
           .storage()
           .bucket()
           .upload(newsImagePath, {
@@ -94,14 +106,13 @@ inquirer
           });
 
         // Upload resource image to org. storage
-        const [{ path: orgResourceStoragePath }] = await orgApp
+        const [{ name: orgResourceStoragePath }] = await orgApp
           .storage()
           .bucket()
           .upload(newsImagePath, {
             destination: `${RESOURCES_COLLECTION}/${Date.now()}.png`
           });
 
-        const mainStore = mainApp.firestore();
         const mainBatch = mainStore.batch();
         const organizationId = mainStore
           .collection(ORGANIZATION_COLLECTION)
@@ -143,7 +154,7 @@ inquirer
             mainStore.collection(RESOURCES_COLLECTION).doc(resourceId),
             {
               id: resourceId,
-              description: '',
+              description: RESOURCE_DESCRIPTION,
               image: mainResourceStoragePath,
               title: `Resource ${i}`,
               url: RESOURCE_LINK
@@ -159,13 +170,13 @@ inquirer
         const startId = Date.now();
 
         await orgDb.ref(RESOURCES_COLLECTION).set(
-          new Array(NUM_RESOURCES).reduce((all, _, index) => {
+          [...Array(NUM_RESOURCES)].reduce((all, _, index) => {
             const resourceId = startId + index;
             return {
               ...all,
               [resourceId]: {
                 id: resourceId,
-                description: '',
+                description: RESOURCE_DESCRIPTION,
                 image: orgResourceStoragePath,
                 title: `Company Resource ${index}`,
                 url: RESOURCE_LINK
@@ -179,21 +190,21 @@ inquirer
 
         await orgApp.delete();
 
-        console.log('\x1b[31m%s\x1b[0m', 'All done!');
+        console.log('\x1b[32m%s\x1b[0m', 'All done!');
 
         console.log(
-          '\x1b[31m%s\x1b[0m',
+          '\x1b[32m%s\x1b[0m',
           'Use the below information to help sign in to the organization!'
         );
 
         console.log(
-          '\x1b[46m%s\x1b[0m',
+          '\x1b[36m%s\x1b[0m',
           util.inspect(orgMeta, {
             depth: 5
           })
         );
       } catch (e) {
-        console.error(e.message);
+        console.error('\x1b[31m%s\x1b[0m', e.message);
       }
     }
   );

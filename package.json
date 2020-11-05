@@ -29,6 +29,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "seed": "node ./scripts/seed",
     "lint": "tsc --noEmit && eslint --fix --ext .ts,.tsx ./",
     "prettier:write": "npx prettier --write **/*.{ts,tsx,json} && npx prettier --write *.{ts,tsx,json}",
     "lint:all": "pretty-quick --staged && yarn run lint"
