@@ -218,6 +218,7 @@ const AuthProvider: React.FC = ({ children }) => {
 
         if (!retrievedUser) {
           _clear();
+          setInitializing(false);
           return;
         }
 
@@ -270,6 +271,7 @@ const AuthProvider: React.FC = ({ children }) => {
     }
     return () => {};
   }, [organization?.id]);
+
   return (
     <AuthContext.Provider
       value={{
