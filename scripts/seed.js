@@ -147,6 +147,16 @@ var __generator =
       return { value: op[0] ? op[1] : void 0, done: true };
     }
   };
+var __spreadArrays =
+  (this && this.__spreadArrays) ||
+  function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++)
+      s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+      for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+        r[k] = a[j];
+    return r;
+  };
 exports.__esModule = true;
 var inquirer = require('inquirer');
 var admin = require('firebase-admin');
@@ -160,6 +170,8 @@ var RESOURCE_LINK = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 var ORGANIZATIONS_COLLECTION = 'organizations';
 var ORGANIZATIONS_METADATA_COLLECTION = 'organizations-metadata';
 var RESOURCES_COLLECTION = 'resources';
+var RESOURCE_DESCRIPTION =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 var serviceAccount;
 try {
   serviceAccount = JSON.parse(
@@ -204,14 +216,14 @@ inquirer
     {
       type: 'input',
       message:
-        'What is the URL to the main storage bucket? (alias: storage-default)',
-      name: 'mainStorageUrl'
+        "What is the URL to the organization's database? (alias: rtdb-org)",
+      name: 'orgDatabaseUrl'
     },
     {
       type: 'input',
       message:
-        "What is the URL to the organization's database? (alias: rtdb-org)",
-      name: 'orgDatabaseUrl'
+        'What is the URL to the main storage bucket? (alias: storage-default)',
+      name: 'mainStorageUrl'
     },
     {
       type: 'input',
@@ -308,14 +320,18 @@ inquirer
             orgMeta = {
               id: organizationId,
               name: 'Company Name',
-              slug: 'company-' + organizationId,
+              slug: ('company-' + organizationId).toLowerCase(),
               accessCode: '123',
               image: orgLogoStoragePath
             };
             org = __assign(__assign({}, orgMeta), {
               databaseUrl: orgDatabaseUrl,
               storageUrl: orgStorageUrl,
-              theme: {}
+              theme: {
+                resourcePaper: {
+                  main: '#000080'
+                }
+              }
             });
             // Create organization meta. and organization in main store
             mainBatch.create(
@@ -337,7 +353,7 @@ inquirer
                 mainStore.collection(RESOURCES_COLLECTION).doc(resourceId),
                 {
                   id: resourceId,
-                  description: '',
+                  description: RESOURCE_DESCRIPTION,
                   image: mainResourceStoragePath,
                   title: 'Resource ' + i,
                   url: RESOURCE_LINK
@@ -352,7 +368,11 @@ inquirer
             return [
               4 /*yield*/,
               orgDb.ref(RESOURCES_COLLECTION).set(
-                new Array(NUM_RESOURCES).reduce(function (all, _, index) {
+                __spreadArrays(Array(NUM_RESOURCES)).reduce(function (
+                  all,
+                  _,
+                  index
+                ) {
                   var _a;
                   var resourceId = startId_1 + index;
                   return __assign(
@@ -360,14 +380,15 @@ inquirer
                     ((_a = {}),
                     (_a[resourceId] = {
                       id: resourceId,
-                      description: '',
+                      description: RESOURCE_DESCRIPTION,
                       image: orgResourceStoragePath_1,
                       title: 'Company Resource ' + index,
                       url: RESOURCE_LINK
                     }),
                     _a)
                   );
-                }, {})
+                },
+                {})
               )
             ];
           case 5:

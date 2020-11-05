@@ -11,6 +11,8 @@ const RESOURCE_LINK = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 const ORGANIZATIONS_COLLECTION = 'organizations';
 const ORGANIZATIONS_METADATA_COLLECTION = 'organizations-metadata';
 const RESOURCES_COLLECTION = 'resources';
+const RESOURCE_DESCRIPTION =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 
 let serviceAccount: Record<string, string>;
 
@@ -55,14 +57,14 @@ inquirer
     {
       type: 'input',
       message:
-        'What is the URL to the main storage bucket? (alias: storage-default)',
-      name: 'mainStorageUrl'
+        "What is the URL to the organization's database? (alias: rtdb-org)",
+      name: 'orgDatabaseUrl'
     },
     {
       type: 'input',
       message:
-        "What is the URL to the organization's database? (alias: rtdb-org)",
-      name: 'orgDatabaseUrl'
+        'What is the URL to the main storage bucket? (alias: storage-default)',
+      name: 'mainStorageUrl'
     },
     {
       type: 'input',
@@ -141,7 +143,7 @@ inquirer
         const orgMeta = {
           id: organizationId,
           name: 'Company Name',
-          slug: `company-${organizationId}`,
+          slug: `company-${organizationId}`.toLowerCase(),
           accessCode: '123',
           image: orgLogoStoragePath
         };
@@ -150,7 +152,11 @@ inquirer
           ...orgMeta,
           databaseUrl: orgDatabaseUrl,
           storageUrl: orgStorageUrl,
-          theme: {}
+          theme: {
+            resourcePaper: {
+              main: '#000080'
+            }
+          }
         };
 
         // Create organization meta. and organization in main store
@@ -175,7 +181,7 @@ inquirer
             mainStore.collection(RESOURCES_COLLECTION).doc(resourceId),
             {
               id: resourceId,
-              description: '',
+              description: RESOURCE_DESCRIPTION,
               image: mainResourceStoragePath,
               title: `Resource ${i}`,
               url: RESOURCE_LINK
@@ -191,13 +197,13 @@ inquirer
         const startId = Date.now();
 
         await orgDb.ref(RESOURCES_COLLECTION).set(
-          new Array(NUM_RESOURCES).reduce((all, _, index) => {
+          [...Array(NUM_RESOURCES)].reduce((all, _, index) => {
             const resourceId = startId + index;
             return {
               ...all,
               [resourceId]: {
                 id: resourceId,
-                description: '',
+                description: RESOURCE_DESCRIPTION,
                 image: orgResourceStoragePath,
                 title: `Company Resource ${index}`,
                 url: RESOURCE_LINK
