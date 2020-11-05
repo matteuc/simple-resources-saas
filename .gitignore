@@ -127,3 +127,7 @@ yarn-debug.log*
 yarn-error.log*
 
 firebase.config.json
+serviceAccount.json
+.firebaserc
+firebase.json
+.firebase/*

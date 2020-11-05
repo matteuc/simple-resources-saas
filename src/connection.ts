@@ -17,6 +17,12 @@ export const main = {
   auth: firebase.auth()
 };
 
+export type OrganizationConnection = {
+  db: firebase.database.Database;
+  storage: firebase.storage.Storage;
+  auth: firebase.auth.Auth;
+};
+
 /**
  * Return a connection to an organization's resources
  * @param databaseURL URL to the organization's RTDB
@@ -26,11 +32,15 @@ export const initializeOrgConnection = (
   orgName: string,
   databaseURL: string,
   storageURL: string
-) => {
+): OrganizationConnection & {
+  disconnect: () => void;
+} => {
   const app =
     firebase.apps.find((a) => a.name === orgName) ||
     firebase.initializeApp(
       {
+        apiKey: config.apiKey,
+        auth: config.authDomain,
         databaseURL,
         storageBucket: storageURL
       },
@@ -38,11 +48,11 @@ export const initializeOrgConnection = (
     );
 
   return {
+    auth: firebase.auth(),
     db: firebase.database(app),
-    storage: firebase.storage(app)
+    storage: firebase.storage(app),
+    disconnect: () => app.delete()
   };
 };
-
-export type OrganizationConnection = ReturnType<typeof initializeOrgConnection>;
 
 export type MainConnection = typeof main;

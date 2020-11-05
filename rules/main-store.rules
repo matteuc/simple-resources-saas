@@ -4,5 +4,19 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
+    match /organizations-metadata/{document=**} {
+    	allow read: if true;
+      allow write: if false;
+  	}
+    match /organizations/{orgId} {
+    	allow read: if request.auth != null && orgId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizations;
+      allow write: if false;
+  	}
+    match /users/{userId} {
+    	allow read, write: if request.auth != null && request.auth.uid == userId;
+  	}
+    match /resources/{resourceId} {
+    	allow read: if request.auth != null;
+  	}
   }
 }

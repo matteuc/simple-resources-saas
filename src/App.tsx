@@ -1,26 +1,62 @@
 import * as React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
+} from 'react-router-dom';
+import { Box, makeStyles } from '@material-ui/core';
 
-function App() {
+import { AuthProvider, useAuth } from './context/Auth';
+import { OrganizationProvider } from './context/Organization';
+import { ThemeProvider } from './context/Theme';
+import { HOME, LOGIN, SIGN_UP } from './global/constants/routes';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import Home from './pages/Home';
+
+const useStyles = makeStyles(() => ({
+  root: {
+    display: 'flex',
+    minHeight: '100%',
+    minWidth: '100%'
+  }
+}));
+
+const Main: React.FC = () => {
+  const { user } = useAuth();
+  const classes = useStyles();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box className={classes.root}>
+      {user ? (
+        <Router>
+          <Switch>
+            <Route exact path={HOME} component={Home} />
+            <Route component={() => <Redirect to={HOME} />} />
+          </Switch>
+        </Router>
+      ) : (
+        <Router>
+          <Switch>
+            <Route exact path={LOGIN} component={Login} />
+            <Route exact path={SIGN_UP} component={SignUp} />
+            <Route component={() => <Redirect to={LOGIN} />} />
+          </Switch>
+        </Router>
+      )}
+    </Box>
   );
-}
+};
+
+const App: React.FC = () => (
+  <AuthProvider>
+    <OrganizationProvider>
+      <ThemeProvider>
+        <Main />
+      </ThemeProvider>
+    </OrganizationProvider>
+  </AuthProvider>
+);
 
 export default App;
