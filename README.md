@@ -138,4 +138,5 @@ Last two steps!
 1. `yarn global add firebase-tools`
 2. `firebase login`
 3. `firebase init`
-4. `yarn deploy`
+4. `yarn build`
+5. `yarn deploy`

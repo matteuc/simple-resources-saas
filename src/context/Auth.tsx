@@ -51,6 +51,8 @@ const AuthProvider: React.FC = ({ children }) => {
 
   const [initializing, setInitializing] = useState(true);
 
+  const [authListening, setAuthListening] = useState(true);
+
   const [organization, setOrganization] = useState<AuthState['organization']>(
     null
   );
@@ -72,6 +74,7 @@ const AuthProvider: React.FC = ({ children }) => {
    */
   const login: AuthState['login'] = async (email, password, orgId) => {
     let cred: firebase.auth.UserCredential;
+    setAuthListening(false);
     try {
       cred = await main.auth.signInWithEmailAndPassword(email, password);
     } catch (e) {
@@ -119,6 +122,8 @@ const AuthProvider: React.FC = ({ children }) => {
         }
       }
 
+      setAuthListening(true);
+
       setUser(retrievedUser);
     } catch (e) {
       main.auth.signOut();
@@ -157,6 +162,8 @@ const AuthProvider: React.FC = ({ children }) => {
       organizationId = orgMeta.id;
     }
 
+    setAuthListening(false);
+
     if ((await main.auth.fetchSignInMethodsForEmail(email)).length) {
       throw new Error(AuthErrors.USER_EXISTS);
     }
@@ -189,6 +196,9 @@ const AuthProvider: React.FC = ({ children }) => {
       );
 
       setUser(newUser);
+
+      setAuthListening(true);
+
       return;
     } catch (e) {
       console.error(e);
@@ -243,10 +253,12 @@ const AuthProvider: React.FC = ({ children }) => {
       setInitializing(false);
     };
 
-    const unsubscribe = main.auth.onAuthStateChanged(initialize);
+    const unsubscribe = authListening
+      ? main.auth.onAuthStateChanged(initialize)
+      : () => {};
 
     return () => unsubscribe();
-  }, []);
+  }, [authListening]);
 
   useEffect(() => {
     if (user) {

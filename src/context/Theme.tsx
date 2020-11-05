@@ -30,9 +30,10 @@ const ThemeProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (organization) {
-      const orgTheme = createMuiTheme(
-        organization.theme || defaultThemeOptions
-      );
+      const orgTheme = createMuiTheme({
+        ...defaultThemeOptions,
+        ...organization.theme
+      });
 
       setCurrentTheme(orgTheme);
     }
