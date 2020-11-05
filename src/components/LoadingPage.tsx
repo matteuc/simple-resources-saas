@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flex: 1,
     display: 'flex',
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.paper
   },
   loading: {
     margin: 'auto'

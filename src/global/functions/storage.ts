@@ -1,6 +1,7 @@
 import firebase from 'firebase';
 import { main } from '../../connection';
 import { Maybe } from '../types/misc';
+import placeholder from '../../assets/img-placeholder.svg';
 
 const getObjectUrl = async (
   path: string,
@@ -25,7 +26,9 @@ const loadImage = async <
   storage?: firebase.storage.Storage
 ): Promise<T> => ({
   ...imageDoc,
-  image: imageDoc.image ? await getObjectUrl(imageDoc.image, storage) : null
+  image: imageDoc.image
+    ? (await getObjectUrl(imageDoc.image, storage)) || placeholder
+    : placeholder
 });
 
 export { getObjectUrl, loadImage };
