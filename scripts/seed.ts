@@ -141,7 +141,7 @@ inquirer
         const orgMeta = {
           id: organizationId,
           name: 'Company Name',
-          slug: `company-${organizationId}`,
+          slug: `company-${organizationId}`.toLowerCase(),
           accessCode: '123',
           image: orgLogoStoragePath
         };
