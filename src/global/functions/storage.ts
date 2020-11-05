@@ -24,11 +24,20 @@ const loadImage = async <
 >(
   imageDoc: T,
   storage?: firebase.storage.Storage
-): Promise<T> => ({
-  ...imageDoc,
-  image: imageDoc.image
-    ? (await getObjectUrl(imageDoc.image, storage)) || placeholder
-    : placeholder
-});
+): Promise<T> => {
+  let url: string = placeholder;
+  try {
+    if (imageDoc.image) {
+      url = (await getObjectUrl(imageDoc.image, storage)) || placeholder;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  return {
+    ...imageDoc,
+    image: url
+  };
+};
 
 export { getObjectUrl, loadImage };
