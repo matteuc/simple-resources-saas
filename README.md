@@ -70,7 +70,12 @@ type Firestore = {
          name: string,
          image: string,
          slug: string,
-         accessCode: string
+         accessCode: string,
+         theme: {
+            resourcePaper: {
+               main: string
+            }
+         }
       }
    },
    organizations-metadata: {
