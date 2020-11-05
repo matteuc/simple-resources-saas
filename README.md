@@ -58,6 +58,67 @@ If you don't want to insert your own data, you can run the provided seed script 
 2. The script will ask you to provide the storage bucket and database URLS generated from **Step 5** in [Installation and Setup](#installation-and-setup)
 3. After completing the prompts, your project will be seeded with example data and images!
 
+The resulting database structure looks like this:
+
+```ts
+type Firestore = {
+   organizations: {
+      [id: string]: {
+         id: string,
+         databaseUrl: string,
+         bucketUrl: string,
+         name: string,
+         image: string,
+         slug: string,
+         accessCode: string
+      }
+   },
+   organizations-metadata: {
+      [id: string]: {
+         id: string,
+         name: string,
+         image: string,
+         slug: string,
+         accessCode: string
+      }
+   },
+   resources: {
+      [id: string]: {
+         id: string,
+         image: string,
+         url: string,
+         title: string,
+         description: string,
+      }
+   },
+   users: {
+      [id: string]: {
+         id: string,
+         image: string | null,
+         name: string,
+         organizations: {
+            [organizationId: string]: boolean
+         }
+      }
+   }
+}
+
+```
+
+```ts
+type RealtimeDatabase = {
+  resources: {
+    [id: string]: {
+      id: string;
+      image: string;
+      url: string;
+      title: string;
+      description: string;
+    };
+  };
+};
+```
+
 #### Configuring the Firebase SDK
 
 Follow the instructions from [Step 2](https://firebase.google.com/docs/web/setup#register-app) of the [Add Firebase to your JavaScript project](https://firebase.google.com/docs/web/setup) tutorial. You will basically do the following
