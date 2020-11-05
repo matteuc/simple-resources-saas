@@ -57,14 +57,14 @@ inquirer
     {
       type: 'input',
       message:
-        'What is the URL to the main storage bucket? (alias: storage-default)',
-      name: 'mainStorageUrl'
+        "What is the URL to the organization's database? (alias: rtdb-org)",
+      name: 'orgDatabaseUrl'
     },
     {
       type: 'input',
       message:
-        "What is the URL to the organization's database? (alias: rtdb-org)",
-      name: 'orgDatabaseUrl'
+        'What is the URL to the main storage bucket? (alias: storage-default)',
+      name: 'mainStorageUrl'
     },
     {
       type: 'input',
