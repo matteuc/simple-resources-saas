@@ -49,7 +49,13 @@ In order to run this app, you will need to [create a Firebase account](https://f
 
 #### Seeding Data
 
-TODO - automated seeding with script
+If you don't want to insert your own data, you can run the provided seed script `/scripts/seed.js`.
+
+> Before you run the script, you will need to [create a service account](https://firebase.google.com/docs/admin/setup#initialize-sdk) and copy the generated JSON file to the path `/serviceAccount.json`. This will allow the script to read/write to your project's resources
+
+1. Once you have copied over the config. file to `/serviceAccount.json`, run the command `yarn seed`
+2. The script will ask you to provide the storage bucket and database URLS generated from **Step 5** in [Installation and Setup](#installation-and-setup)
+3. After completing the prompts, your project will be seeded with example data and images!
 
 #### Configuring the Firebase SDK
 
