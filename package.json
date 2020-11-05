@@ -32,7 +32,9 @@
     "seed": "node ./scripts/seed",
     "lint": "tsc --noEmit && eslint --fix --ext .ts,.tsx ./",
     "prettier:write": "npx prettier --write **/*.{ts,tsx,json} && npx prettier --write *.{ts,tsx,json}",
-    "lint:all": "pretty-quick --staged && yarn run lint"
+    "lint:all": "pretty-quick --staged && yarn run lint",
+    "init:firebase": "firebase init",
+    "deploy": "yarn build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [

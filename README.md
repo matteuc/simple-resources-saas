@@ -8,6 +8,7 @@
 - [Seeding Data](#seeding-data)
 - [Configuring the Firebase SDK](#configuring-the-firebase-sdk)
 - [Run the App](#run-the-app)
+- [Deploying the App](#deploying-the-app)
 
 #### Overview
 
@@ -70,3 +71,10 @@ Last two steps!
 
 1. Run `yarn` or `npm i` to install the project's dependencies
 2. Run `yarn start` to start the project!
+
+#### Deploying the App
+
+1. `yarn global add firebase-tools`
+2. `firebase login`
+3. `firebase init`
+4. `yarn deploy`
