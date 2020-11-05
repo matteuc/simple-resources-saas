@@ -16,7 +16,13 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
-    backgroundColor: theme.palette.grey[500]
+    backgroundColor: theme.resourcePaper.main
+  },
+  contrastTitle: {
+    color: theme.palette.getContrastText(theme.resourcePaper.main)
+  },
+  contrastDescription: {
+    color: theme.palette.getContrastText(theme.resourcePaper.main)
   }
 }));
 
@@ -65,10 +71,20 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
               title={resource.title}
             />
             <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
+              <Typography
+                className={classes.contrastTitle}
+                gutterBottom
+                variant="h5"
+                component="h2"
+              >
                 {loadedResource.title}
               </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
+              <Typography
+                className={classes.contrastDescription}
+                variant="body2"
+                color="textSecondary"
+                component="p"
+              >
                 {loadedResource.description}
               </Typography>
             </CardContent>

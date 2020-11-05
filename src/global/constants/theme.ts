@@ -1,20 +1,20 @@
 declare module '@material-ui/core/styles/createMuiTheme' {
   interface Theme {
-    status: {
-      danger: string;
+    resourcePaper: {
+      main: string;
     };
   }
   // allow configuration using `createMuiTheme`
   interface ThemeOptions {
-    status?: {
-      danger?: string;
+    resourcePaper?: {
+      main?: string;
     };
   }
 }
 
 const theme = {
-  status: {
-    danger: 'red'
+  resourcePaper: {
+    main: '#9e9e9e'
   },
   palette: {
     primary: {
