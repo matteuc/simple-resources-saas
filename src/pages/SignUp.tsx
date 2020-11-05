@@ -172,6 +172,14 @@ const SignUp: React.FC = () => {
 
       if (org) {
         setOrganizationMeta(await loadImage(org));
+      } else {
+        setForm(({ email, name, password }) => {
+          return {
+            email,
+            name,
+            password
+          };
+        });
       }
 
       setIntitializing(false);
@@ -248,8 +256,6 @@ const SignUp: React.FC = () => {
         form.password.value,
         {
           name: form.name.value
-          // TODO
-          // image: null
         },
         organizationMeta
           ? {

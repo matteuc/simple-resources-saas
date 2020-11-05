@@ -11,7 +11,7 @@ const RESOURCE_DESCRIPTION =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 
 const ORGANIZATION_COLLECTION = 'organizations';
-const ORGANIZATION_META_COLLECTION = 'organizations-metdata';
+const ORGANIZATION_META_COLLECTION = 'organizations-metadata';
 const RESOURCES_COLLECTION = 'resources';
 
 let serviceAccount;
@@ -121,7 +121,7 @@ inquirer
         const orgMeta = {
           id: organizationId,
           name: 'Company Name',
-          slug: `company-${organizationId}`,
+          slug: `company-${organizationId.toLowerCase()}`,
           accessCode: '123',
           image: orgLogoStoragePath
         };

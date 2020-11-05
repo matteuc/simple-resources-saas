@@ -135,6 +135,7 @@ const Login: React.FC = () => {
           ...currentForm.email,
           error,
           valid: !error,
+          validating: false,
           message: error ? AuthErrors.USER_DNE : null
         }
       }));
